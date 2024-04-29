@@ -46,79 +46,79 @@ if(isset($_POST['signup'])){
         }
     }
 
-}
-    // If user clicks verification code submit button
-if(isset($_POST['check'])){
-    $_SESSION['info'] = "";
-    $otp_code = mysqli_real_escape_string($con, $_POST['otp']);
-    $check_code = "SELECT * FROM user WHERE code = $otp_code";
-    $code_res = mysqli_query($con, $check_code);
-    if(mysqli_num_rows($code_res) > 0){
-        $fetch_data = mysqli_fetch_assoc($code_res);
-        $fetch_code = $fetch_data['code'];
-        $email = $fetch_data['email'];
-        $role = $fetch_data['role']; // Get user role
-        $code = 0;
-        $status = 'verified';
-        $update_otp = "UPDATE user SET code = $code, status = '$status' WHERE code = $fetch_code";
-        $update_res = mysqli_query($con, $update_otp);
-        if($update_res){
-            $_SESSION['email'] = $email;
-            if($role == 'user'){
-                // Redirect to home for regular users
-                header('location: homeuser.php');
-            } elseif($role == 'admin'){
-                // Redirect to home for admin
-                header('location: homeadmin.php');
-            }
-            exit();
-        }else{
-            $errors['otp-error'] = "Failed while updating code!";
-        }
-    }else{
-        $errors['otp-error'] = "You've entered incorrect code!";
     }
-}
-
-
-    // if user clicks login button
-if(isset($_POST['login'])){
-    $email = mysqli_real_escape_string($con, $_POST['email']);
-    $password = mysqli_real_escape_string($con, $_POST['password']);
-    $check_user = "SELECT * FROM user WHERE email = '$email'";
-    $res = mysqli_query($con, $check_user);
-    if(mysqli_num_rows($res) > 0){
-        $fetch = mysqli_fetch_assoc($res);
-        $fetch_pass = $fetch['password'];
-        if(password_verify($password, $fetch_pass)){
-            // User authentication successful
-            $_SESSION['email'] = $email;
-            $status = $fetch['status'];
-            if($status == 'verified'){
-                // User email is verified
-                $_SESSION['role'] = $fetch['role']; // Set user role
-                if($_SESSION['role'] == 'user'){
+        // If user clicks verification code submit button
+    if(isset($_POST['check'])){
+        $_SESSION['info'] = "";
+        $otp_code = mysqli_real_escape_string($con, $_POST['otp']);
+        $check_code = "SELECT * FROM user WHERE code = $otp_code";
+        $code_res = mysqli_query($con, $check_code);
+        if(mysqli_num_rows($code_res) > 0){
+            $fetch_data = mysqli_fetch_assoc($code_res);
+            $fetch_code = $fetch_data['code'];
+            $email = $fetch_data['email'];
+            $role = $fetch_data['role']; // Get user role
+            $code = 0;
+            $status = 'verified';
+            $update_otp = "UPDATE user SET code = $code, status = '$status' WHERE code = $fetch_code";
+            $update_res = mysqli_query($con, $update_otp);
+            if($update_res){
+                $_SESSION['email'] = $email;
+                if($role == 'user'){
                     // Redirect to home for regular users
                     header('location: homeuser.php');
-                } elseif($_SESSION['role'] == 'admin'){
+                } elseif($role == 'admin'){
                     // Redirect to home for admin
                     header('location: homeadmin.php');
                 }
+                exit();
             }else{
-                // Email not verified, redirect to OTP verification
-                $info = "It seems like you haven't verified your email yet - $email";
-                $_SESSION['info'] = $info;
-                header('location: user-otp.php');
+                $errors['otp-error'] = "Failed while updating code!";
             }
         }else{
-            // Incorrect email or password
-            $errors['email'] = "Incorrect email or password!";
+            $errors['otp-error'] = "You've entered incorrect code!";
         }
-    }else{
-        // User not found in database
-        $errors['email'] = "It seems like you haven't signed up yet! Click on the link below to sign up.";
     }
-}
+
+
+        // if user clicks login button
+    if(isset($_POST['login'])){
+        $email = mysqli_real_escape_string($con, $_POST['email']);
+        $password = mysqli_real_escape_string($con, $_POST['password']);
+        $check_user = "SELECT * FROM user WHERE email = '$email'";
+        $res = mysqli_query($con, $check_user);
+        if(mysqli_num_rows($res) > 0){
+            $fetch = mysqli_fetch_assoc($res);
+            $fetch_pass = $fetch['password'];
+            if(password_verify($password, $fetch_pass)){
+                // User authentication successful
+                $_SESSION['email'] = $email;
+                $status = $fetch['status'];
+                if($status == 'verified'){
+                    // User email is verified
+                    $_SESSION['role'] = $fetch['role']; // Set user role
+                    if($_SESSION['role'] == 'user'){
+                        // Redirect to home for regular users
+                        header('location: homeuser.php');
+                    } elseif($_SESSION['role'] == 'admin'){
+                        // Redirect to home for admin
+                        header('location: homeadmin.php');
+                    }
+                }else{
+                    // Email not verified, redirect to OTP verification
+                    $info = "It seems like you haven't verified your email yet - $email";
+                    $_SESSION['info'] = $info;
+                    header('location: user-otp.php');
+                }
+            }else{
+                // Incorrect email or password
+                $errors['email'] = "Incorrect email or password!";
+            }
+        }else{
+            // User not found in database
+            $errors['email'] = "It seems like you haven't signed up yet! Click on the link below to sign up.";
+        }
+    }
 
 
     //if user click continue button in forgot password form
